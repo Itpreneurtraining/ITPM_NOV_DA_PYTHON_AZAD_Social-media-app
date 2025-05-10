@@ -1,0 +1,36 @@
+{% load static %}
+<div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Profile</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <img src="{{ user_profile.profile_picture.url }}" alt="Current Profile Picture" class="m-1"
+                            style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                        <label for="profile-picture" class="col-form-label">Change Profile Picture</label>
+                        <input type="file" name="image" class="form-control" id="profile-picture" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                        <label for="bio-text" class="col-form-label">Bio</label>
+                        <textarea class="form-control" name="bio" placeholder="Bio..."
+                            id="bio-text">{{user_profile.bio}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="col-form-label">Location</label>
+                        <input type="text" class="form-control" name="location" id="location"
+                            value="{{user_profile.location}}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

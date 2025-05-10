@@ -1,0 +1,334 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/cb792c0850.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Social Media</title>
+    <style>
+        /* Custom styles for the sidebar */
+        .sidebar {
+            background-color: #f8f9fa;
+            height: 100vh;
+            color: black;
+            position: fixed;
+        }
+
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        a {
+            color: black;
+        }
+
+        /* Main content styles */
+        .main-content {
+            background-color: white;
+            margin-left: 16.666667%;
+            /* Offset for sidebar */
+        }
+
+        /* Post card styles */
+        .post-card {
+            max-width: 470px;
+            margin: 20px auto;
+            border: 1px solid #dbdbdb;
+            background-color: white;
+            border-radius: 8px;
+        }
+
+        .post-header {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #efefef;
+        }
+
+        .post-user-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            height: auto;
+        }
+
+        .post-actions {
+            padding: 6px 16px;
+            font-size: 24px;
+        }
+
+        .post-likes {
+            padding: 0 16px;
+            font-weight: 600;
+        }
+
+        .post-caption {
+            padding: 0 16px;
+            margin-bottom: 8px;
+        }
+
+        .post-comments {
+            padding: 0 16px;
+            color: #8e8e8e;
+            margin-bottom: 8px;
+        }
+
+        .post-time {
+            padding: 0 16px;
+            color: #8e8e8e;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .post-comment-form {
+            border-top: 1px solid #efefef;
+            padding: 16px;
+        }
+
+        /* Suggestions sidebar */
+        .suggestions-sidebar {
+            position: fixed;
+            width: 293px;
+            margin-left: 20px;
+        }
+
+        .suggestion-user {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .suggestion-user-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .suggestion-user-info {
+            flex-grow: 1;
+        }
+
+        .suggestion-username {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .suggestion-followed-by {
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+
+        .follow-btn {
+            color: #0095f6;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .suggestions-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            font-size: 11px;
+            color: #c7c7c7;
+            margin-top: 30px;
+        }
+
+        /* Heart icon styles */
+        .post-actions .fa-heart {
+            color: inherit;
+            /* Default color */
+            transition: color 0.2s ease;
+        }
+
+        .post-actions .fa-heart.liked {
+            color: #ed4956;
+            /* Instagram red color */
+        }
+
+        /* Solid heart for liked state */
+        .post-actions .fa-solid.fa-heart {
+            color: #ed4956;
+        }
+
+        /* Regular heart for unliked state */
+        .post-actions .fa-regular.fa-heart {
+            color: inherit;
+        }
+    </style>
+</head>
+
+<body style="background-color: #fafafa;">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Keep your original navbar -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="text-center mt-3">
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+                    <h4 class="mt-2"><a href="/profile/{{user}}" style="text-decoration:none;">@{{user}}</a></h4>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="fa-solid fa-house mr-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/explore">
+                            <i class="fa-solid fa-compass mr-1"></i> Explore
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal3">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            data-bs-whatever="@getbootstrap">
+                            <i class="fa-solid fa-circle-plus mr-1"></i> Create Post
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile/{{user}}">
+                            <i class="fa-solid fa-user mr-1"></i> Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main content area -->
+            <main class="col-md-8 offset-md-2 px-md-4 main-content">
+                {% include "modal.html" %}
+                {% include "search.html" %}
+
+                <!-- Posts feed -->
+                {% for pos in posts %}
+                <div class="post-card" id="{{pos.id}}">
+                    <!-- Post header -->
+                    <div class="post-header">
+                        <img src="{{ profile.profile_picture.url }}" class="post-user-img" alt="Profile Picture">
+                        <a href="/profile/{{pos.user}}"
+                            style="text-decoration: none; font-weight: 600;">@{{pos.user}}</a>
+                    </div>
+
+                    <!-- Post image -->
+                    <img src="{{ pos.image.url }}" alt="Post Image" class="post-image">
+
+                    <!-- Post actions -->
+                    <div class="post-actions">
+                        <a href="/like-post/{{pos.id}}" class="text-dark me-3">
+                            <i
+                                class="fa-{% if pos.id|stringformat:'s' in liked_posts %}solid{% else %}regular{% endif %} fa-heart {% if pos.id|stringformat:'s' in liked_posts %}liked{% endif %}"></i>
+                        </a>
+
+                    </div>
+
+                    <!-- Likes count -->
+                    <div class="post-likes">
+                        {% if pos.no_of_likes == 0 %}
+                        <p>No likes yet</p>
+                        {% elif pos.no_of_likes == 1 %}
+                        <p>Liked by {{pos.no_of_likes}} person</p>
+                        {% else %}
+                        <p>Liked by {{pos.no_of_likes}} people</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Caption -->
+                    <div class="post-caption">
+                        <a href="/profile/{{pos.user}}"
+                            style="text-decoration: none; font-weight: 600;">@{{pos.user}}</a>
+                        <span>{{pos.caption}}</span>
+                    </div>
+
+
+                    <!-- Post time -->
+                    <div class="post-time">
+                        {{pos.created_at|timesince}} ago
+                    </div>
+
+                </div>
+                {% endfor %}
+            </main>
+
+            <!-- Suggestions sidebar - Modified version -->
+            <div class="col-md-2 d-none d-lg-block suggestions-sidebar"
+                style="position: fixed; right: 0; width: 250px; padding-right: 20px;">
+                <div class="sticky-top" style="padding-top: 20px;">
+                    <!-- Suggestions header -->
+                    <div class="suggestions-header">
+                        <span style="color: #8e8e8e; font-weight: 600;">Suggestions For You</span>
+                        <a href="#" style="text-decoration: none; font-weight: 600; font-size: 12px;">See All</a>
+                    </div>
+
+                    <!-- Suggested users from database -->
+
+                    {% for suggested_user in suggested_users %}
+                    <div class="suggestion-user">
+                        <a href="/profile/{{ suggested_user.username }}"
+                            style="display: flex; align-items: center; text-decoration: none; color: inherit; flex-grow: 1;">
+                            <img src="{{ suggested_user.profile.profile_picture.url }}" class="suggestion-user-img"
+                                alt="{{ suggested_user.username }}">
+                            <div class="suggestion-user-info">
+                                <div class="suggestion-username">{{ suggested_user.username }}</div>
+                                <div class="suggestion-followed-by">
+                                    {% with followers=suggested_user.followers_set.all|slice:":2" %}
+                                    {% if followers %}
+                                    Followed by 
+                                        {% for follower in followers %}
+                                            {{ follower.follower }}
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                        {% if suggested_user.followers_set.count > 2 %} 
+                                            + {{ suggested_user.followers_set.count|add:"-2" }} more
+                                        {% endif %}
+                                    {% else %}
+                                        New to Instagram
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                        </a>
+                        <form action="/follow" method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="follower" value="{{ request.user.username }}">
+                            <input type="hidden" name="user" value="{{ suggested_user.username }}">
+                            <button type="submit" class="follow-btn"
+                                style="background: none; border: none; cursor: pointer;">Follow</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="{% static 'js/app.js'%}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

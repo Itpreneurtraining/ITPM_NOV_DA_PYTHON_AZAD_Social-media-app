@@ -1,0 +1,203 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/cb792c0850.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Social Media</title>
+    <style>
+        /* Custom styles for the sidebar */
+        .sidebar {
+            background-color: #f8f9fa;
+            height: 100vh;
+            color: black;
+            position: fixed;
+        }
+
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        a {
+            color: black;
+        }
+
+        /* Search results styles */
+        body {
+            background-color: white;
+            padding-top: 20px;
+        }
+
+        .search-container {
+            margin-left: 16.666667%;
+            /* Offset for sidebar */
+            padding: 20px;
+        }
+
+        .search-user-card {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #efefef;
+            max-width: 600px;
+        }
+
+        .search-user-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+        }
+
+        .search-user-info {
+            flex-grow: 1;
+        }
+
+        .search-username {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .search-user-bio {
+            color: #8e8e8e;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .follow-btn {
+            color: #0095f6;
+            font-weight: 600;
+            font-size: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .follow-btn:hover {
+            color: #00376b;
+        }
+
+        .search-header {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body style="background-color: #fafafa;">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Keep your original navbar -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="text-center mt-3">
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+                    <h4 class="mt-2"><a href="/profile/{{user}}" style="text-decoration:none;">@{{user}}</a></h4>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="fa-solid fa-house mr-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/explore">
+                            <i class="fa-solid fa-compass mr-1"></i> Explore
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal3">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            data-bs-whatever="@getbootstrap">
+                            <i class="fa-solid fa-circle-plus mr-1"></i> Create Post
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile/{{user}}">
+                            <i class="fa-solid fa-user mr-1"></i> Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main content area -->
+            <main class="col-md-10 ml-sm-auto px-md-4 search-container">
+                {% include "modal.html" %}
+                {% include "search.html" %}
+                <h2 class="search-header">Search Results for "{{ query }}"</h2>
+
+                <div class="user-results">
+                    {% for user in users %}
+                    <div class="search-user-card">
+                        <a href="/profile/{{ user.user.username }}"
+                            style="display: flex; align-items: center; text-decoration: none; color: inherit; flex-grow: 1;">
+                            <img src="{{ user.profile_picture.url }}" class="search-user-img"
+                                alt="{{ user.user.username }}">
+                            <div class="search-user-info">
+                                <div class="search-username">{{ user.user.username }}</div>
+                                <p class="search-user-bio">
+                                    {% if user.user.get_full_name %}
+                                        {{ user.user.get_full_name }} •
+                                    {% endif %}
+                                    
+                                    {% with followers=user.user.followers_set.all|slice:":2" %}
+                                        {% if followers %}
+                                            Followed by 
+                                            {% for follower in followers %}
+                                                {{ follower.follower }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                            {% if user.user.followers_set.count > 2 %}
+                                                + {{ user.user.followers_set.count|add:"-2" }} more
+                                            {% endif %}
+                                        {% else %}
+                                            New to Instagram
+                                        {% endif %}
+                                    {% endwith %}
+                                </p>
+                                
+                            </div>
+                        </a>
+                        <form action="/follow" method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="follower" value="{{ request.user.username }}">
+                            <input type="hidden" name="user" value="{{ user.user.username }}">
+                            <button type="submit" class="follow-btn">
+                                {% if user.user.username in following_list %}Following{% else %}Follow{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <p>No users found for "{{ query }}"</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </main>
+
+        </div>
+    </div>
+
+    <script src="{% static 'js/app.js'%}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

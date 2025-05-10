@@ -1,0 +1,194 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/cb792c0850.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Explore</title>
+    <style>
+        /* Custom styles for the sidebar */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        .sidebar {
+            background-color: #f8f9fa;
+            height: 100vh;
+            color: black;
+            position: fixed;
+        }
+
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        a {
+            color: black;
+            text-decoration: none;
+        }
+
+        /* Post grid styles */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-left: 16.666667%;
+            /* Offset for sidebar */
+        }
+
+        .post-container {
+            position: relative;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s;
+        }
+
+        .post-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .post-container:hover .post-overlay {
+            opacity: 1;
+        }
+
+        .post-container:hover .post-image {
+            opacity: 0.8;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .post-stat {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .post-stat i {
+            margin-right: 5px;
+        }
+
+        .post-username {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        #exp {
+            margin-left: -30px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Keep your original navbar -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="text-center mt-3">
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+                    <h4 class="mt-2"><a href="/profile/{{ user.username }}">@{{ user.username }}</a></h4>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="fa-solid fa-house mr-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/explore">
+                            <i class="fa-solid fa-compass mr-1"></i> Explore
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal3">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                            data-bs-whatever="@getbootstrap">
+                            <i class="fa-solid fa-circle-plus mr-1"></i> Create Post
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile/{{profile.user}}">
+                            <i class="fa-solid fa-user mr-1"></i> Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Explore content -->
+            <main class="col-md-11 ml-sm-auto px-md-4">
+                <div class="container" id="exp">
+                    {% include "modal.html" %}
+                    {% include "search.html" %}
+
+                    <div class="explore-grid">
+                        {% for pos in post %}
+                        <div class="post-container">
+                            <a href="/post/{{ pos.id }}">
+                                <img src="{{ pos.image.url }}" class="post-image" alt="Post Image">
+                                <div class="post-overlay">
+                                    <div class="post-stats">
+                                        <div class="post-stat">
+                                            <i class="fas fa-heart"></i>
+                                            <span>{{ pos.no_of_likes }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="post-username">@{{ pos.user }}</div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="{% static 'js/app.js'%}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

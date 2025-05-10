@@ -1,0 +1,292 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/cb792c0850.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>{{user_profile.user}}</title>
+    <style>
+        /* Profile Images */
+        .profile-pic {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-header-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        /* Post Grid Layout */
+        .post-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+        }
+
+        /* Post Item Styles */
+        .post-item {
+            aspect-ratio: 1/1;
+            position: relative;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        .post-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+
+        /* Hover Effects */
+        .post-item:hover .post-image {
+            filter: brightness(0.8);
+        }
+
+        .post-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .post-item:hover::before {
+            opacity: 1;
+        }
+
+        /* Overlay Elements */
+        .position-absolute:not(:first-child) {
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .post-item:hover .position-absolute:not(:first-child),
+        .post-item:hover .bg-opacity-50 {
+            opacity: 1 !important;
+        }
+
+        /* Profile Stats */
+        .stats-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .stats-label {
+            font-size: 0.9rem;
+            color: #8e8e8e;
+        }
+
+        /* Bio Text */
+        .profile-bio {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Keep your original navbar -->
+            <nav class="col-md-2 d-none d-md-block sidebar" style="position: fixed; background-color: #f8f9fa;">
+                <div class="text-center mt-3">
+                    <img src="{{profile.profile_picture.url}}" alt="Profile Picture" class="profile-pic">
+                    <h4 class="mt-2"><a href="/profile/{{user}}"
+                            style="text-decoration:none; color: black;">@{{user}}</a></h4>
+                </div>
+                <ul class="nav flex-column mt-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="fa-solid fa-house mr-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/explore">
+                            <i class="fa-solid fa-compass mr-1"></i> Explore
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal3">
+                            <i class="fa-solid fa-magnifying-glass mr-1"></i> Search
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal2"
+                            data-bs-whatever="@getbootstrap">
+                            <i class="fa-solid fa-circle-plus mr-1"></i> Create Post
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile/{{user}}">
+                            <i class="fa-solid fa-user mr-1"></i> Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout/">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Instagram-style profile content -->
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+                {% include "search.html" %}
+                {% include "profile_upload.html" %}
+                {% include "edit_profile.html" %}
+
+                <div class="container py-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card border-0">
+                                <div class="card-body p-4">
+                                    <!-- Profile header -->
+                                    <div class="row align-items-center">
+                                        <!-- Profile picture column -->
+                                        <div class="col-md-3 text-center">
+                                            <img src="{{user_profile.profile_picture.url}}"
+                                                class="profile-header-img mb-3" alt="Profile Picture">
+                                        </div>
+
+                                        <!-- Profile info column -->
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <h2 class="mb-0 me-3">@{{user_profile.user}}</h2>
+
+                                                {% if user == user_profile.user %}
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                    data-bs-toggle="modal" data-bs-target="#exampleModal1">
+                                                    Edit Profile
+                                                </button>
+                                                {% else %}
+                                                <form action="/follow" method="POST" class="ms-2">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" value="{{user.username}}" name="follower" />
+                                                    <input type="hidden" value="{{user_object.username}}" name="user" />
+                                                    <button type="submit" class="btn btn-primary btn-sm">
+                                                        {{follow_unfollow}}
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+
+                                            <!-- Stats row -->
+                                            <div class="d-flex mb-3">
+                                                <div class="me-4 text-center">
+                                                    <span class="stats-number d-block">{{user_post_length}}</span>
+                                                    <span class="stats-label">Posts</span>
+                                                </div>
+                                                <div class="me-4 text-center">
+                                                    <span class="stats-number d-block">{{user_followers}}</span>
+                                                    <span class="stats-label">Followers</span>
+                                                </div>
+                                                <div class="text-center">
+                                                    <span class="stats-number d-block">{{user_following}}</span>
+                                                    <span class="stats-label">Following</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Bio section -->
+                                            <div class="mb-2">
+                                                <p class="mb-1 fw-bold">{{user_profile.user.get_full_name}}</p>
+                                                <p class="profile-bio mb-0">{{user_profile.bio}}</p>
+                                                {% if user_profile.location %}
+                                                <p class="mb-0">
+                                                    <i class="fa-solid fa-location-dot"></i> {{user_profile.location}}
+                                                </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Posts section -->
+                                <div class="card-body p-0">
+                                    <div class="border-top pt-3">
+                                        <ul class="nav nav-tabs justify-content-center border-0">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" href="#">
+                                                    <i class="fa-solid fa-table-cells"></i> POSTS
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Post grid -->
+                                    {% if user_posts %}
+                                    <div class="post-grid mt-2">
+                                        {% for pos in user_posts %}
+                                        <div class="post-item position-relative">
+                                            <img src="{{pos.image.url}}" class="post-image" alt="{{pos.caption}}">
+
+                                            {% if user == user_profile.user %}
+                                            <div class="position-absolute top-0 end-0 p-2">
+                                                <a href="/delete/{{pos.id}}"
+                                                    class="text-danger bg-white rounded-circle p-1 d-inline-flex align-items-center justify-content-center"
+                                                    style="width: 24px; height: 24px;"
+                                                    onclick="return confirm('Are you sure you want to delete this post?')">
+                                                    <i class="fa-solid fa-trash fa-xs"></i>
+                                                </a>
+                                            </div>
+                                            {% endif %}
+
+                                            <!-- Like count overlay (center) -->
+                                            <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center"
+                                                style="opacity: 0; transition: opacity 0.3s; pointer-events: none;">
+                                                <div class="text-center text-white">
+                                                    <i class="fa-solid fa-heart fa-lg me-2"></i>
+                                                    <span class="fw-bold fs-5">{{pos.no_of_likes}}</span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Caption overlay (bottom) - remains unchanged -->
+                                            <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-dark bg-opacity-50 text-white d-none d-md-block"
+                                                style="opacity: 0; transition: opacity 0.3s;">
+                                                <p class="mb-0 small text-truncate">{{pos.caption}}</p>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="fa-solid fa-camera fa-3x mb-3"></i>
+                                        <h4>No Posts Yet</h4>
+                                        {% if user == user_profile.user %}
+                                        <p>Share your first photo</p>
+                                        <button class="btn btn-primary" data-bs-toggle="modal"
+                                            data-bs-target="#exampleModal2">
+                                            Upload Photo
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
